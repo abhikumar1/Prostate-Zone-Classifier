@@ -8,19 +8,19 @@ Original file is located at
 """
 
 # Commented out IPython magic to ensure Python compatibility.
-from google.colab import drive
-drive.mount('/content/drive')
+# from google.colab import drive
+# drive.mount('/content/drive')
 
-FOLDERNAME = 'Shareddrives/CS231N project/'
-assert FOLDERNAME is not None, "[!] Enter the foldername."
+FOLDERNAME = ''
+# assert FOLDERNAME is not None, "[!] Enter the foldername."
 
 import sys
-sys.path.append('/content/drive/My Drive/{}'.format(FOLDERNAME))
+sys.path.append('/{}'.format(FOLDERNAME))
 
 # %cd /content/drive/Shareddrives/CS231N project/
 
-!pip install pydicom
-!jupyter nbextension enable --py widgetsnbextension
+# !pip install pydicom
+# !jupyter nbextension enable --py widgetsnbextension
 
 import torch
 from torch.utils.data import Dataset
@@ -279,15 +279,20 @@ class DepthwiseSeparableConv3d(nn.Module):
         out = self.depthwise(x)
         out = self.pointwise(out)
         return out
-
-device = torch.device('cuda')
+    
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+    print("Using CUDA")
+else:
+    device = torch.device('cpu')
+    print("Using CPU")
 model = UNet(1, 3).to(device)
 
 start_time = time.time()
 summary(model=model, input_size=(1, 19, 384, 384), batch_size=-1, device="cuda")
 print("--- %s seconds ---" % (time.time() - start_time))
 
-!pip install monai==1.2.0
+# !pip install monai==1.2.0
 
 from monai.losses import DiceCELoss, DiceLoss
 
@@ -323,7 +328,7 @@ val_size = int(0.2 * dataset_size)
 
 train_dataset, _, test_dataset = random_split(dataset, [train_size, val_size, dataset_size - train_size - val_size])
 
-# train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 print("Total number of training scans:")
