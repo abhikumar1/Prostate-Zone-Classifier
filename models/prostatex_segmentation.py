@@ -19,9 +19,11 @@ from unet import UNet
 torch.manual_seed(0)
 
 # set appropriate device
+mode = "debug"
 if torch.cuda.is_available():
     device = torch.device('cuda')
     print("Using CUDA")
+    mode = "run"
 else:
     device = torch.device('cpu')
     print("Using CPU")
@@ -31,8 +33,12 @@ dataset = ProstateXDataset(root_dir='./Data/PROSTATEx')
 model = UNet(1, 3).to(device)
 
 # set up parameters
-batch_size = 1  # change
-num_epochs = 1
+if mode == "debug":
+    batch_size = 1
+    num_epochs = 1
+elif mode == "run":
+    batch_size = 5
+    num_epochs = 2
 
 lr = 4.3e-3
 beta1 = 0.9
@@ -55,7 +61,11 @@ criterion = DiceCELoss(softmax=True,
 
 # perform train-test split
 dataset_size = len(dataset)
-train_size = int(0.5 * dataset_size)
+if mode == "debug":
+    train_size = int(0.5 * dataset_size)
+elif mode == "run":
+    train_size = int(0.8 * dataset_size)
+
 
 train_dataset, test_dataset = random_split(dataset, [train_size, dataset_size - train_size])
 
